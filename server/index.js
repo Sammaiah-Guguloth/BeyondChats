@@ -1,33 +1,35 @@
 require("dotenv").config();
 const express = require("express");
 const scrapeBeyondChats = require("./utils/scraper");
+const connectToDB = require("./config/connectToDB");
+const cors = require("cors");
+const articleRouter = require("./routes/article.routes");
 
 const app = express();
+const PORT = process.env.PORT || 5000;
 
-// // 1. Connect to Database
-// connectDB();
+// Connect to Database
+connectToDB();
 
-// 2. Essential Middlewares
-// app.use(cors({
-//     origin: process.env.CLIENT_URL || '*', // Allow requests from your Netlify URL
-//     methods: ['GET', 'POST', 'PUT', 'DELETE'],
-//     credentials: true
-// }));
+// Middlewares
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL || "*",
+    credentials: true,
+  })
+);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.get("/", (req, res) => {
-  res.status(200).json({ message: "BeyondRefine API is running smoothly." });
+  res.status(200).json({ message: "BeyondChats Assignment API is runnig." });
 });
 
-scrapeBeyondChats();
+app.use("/api/v1/articles", articleRouter);
 
-const PORT = process.env.PORT || 5000;
+// scrapeBeyondChats(); for check
 
 app.listen(PORT, () => {
-  console.log(
-    `Server running in ${
-      process.env.NODE_ENV || "development"
-    } mode on port ${PORT}`
-  );
+  console.log("server is listening on port : ", PORT);
 });
