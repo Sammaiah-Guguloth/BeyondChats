@@ -29,10 +29,6 @@ app.get("/", (req, res) => {
 
 app.use("/api/v1/articles", articleRouter);
 
-// getCompetitorLinks(" hello "); // for check
-
-// scrapeBeyondChats(); for check
-
 app.listen(PORT, () => {
   console.log("server is listening on port : ", PORT);
 });

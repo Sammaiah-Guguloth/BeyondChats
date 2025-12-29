@@ -6,7 +6,6 @@ const search = new SerpApi.GoogleSearch(process.env.SERPAPI_KEY);
  */
 const getCompetitorLinks = async (title) => {
   return new Promise((resolve, reject) => {
-    // Advanced Search: Exclude your own domain to find true competitors
     const params = {
       q: `${title} -site:beyondchats.com`,
       engine: "google",
@@ -24,15 +23,17 @@ const getCompetitorLinks = async (title) => {
       const results = data.organic_results || [];
 
       // Filter to ensure we only get blogs/articles
-      // We ignore common non-blog sites like LinkedIn, YouTube, or Facebook
+      // We ignore common non-blog sites like LinkedIn, YouTube, Facebook, Amazon, Pinterest
       const filteredLinks = results
         .filter((res) => {
           const url = res.link.toLowerCase();
-          const isSocial =
+          const isExcluded =
             url.includes("linkedin.com") ||
             url.includes("youtube.com") ||
-            url.includes("facebook.com");
-          return !isSocial;
+            url.includes("facebook.com") ||
+            url.includes("amazon.com") ||
+            url.includes("pinterest.com");
+          return !isExcluded;
         })
         .slice(0, 2) // Take the top 2
         .map((res) => ({
@@ -40,7 +41,6 @@ const getCompetitorLinks = async (title) => {
           link: res.link,
         }));
 
-      // PROFESSIONAL LOGGING: Requirement for Phase 2 visibility
       console.log(`\n🔍 SEARCH RESULTS FOR: "${title}"`);
       filteredLinks.forEach((item, i) => {
         console.log(`   Link ${i + 1}: ${item.link}`);

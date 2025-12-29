@@ -75,8 +75,8 @@ const scrapeBeyondChats = async () => {
 
             pageArticles.push({
               title,
-              source_url: link,
-              content: fullContent || excerpt || "No content available",
+              sourceUrl: link,
+              originalContent: fullContent || excerpt || "No content available",
               isAiUpdated: false,
             });
           } catch (err) {
@@ -85,8 +85,8 @@ const scrapeBeyondChats = async () => {
             );
             pageArticles.push({
               title,
-              source_url: link,
-              content: excerpt || "No content available",
+              sourceUrl: link,
+              originalContent: excerpt || "No content available",
               isAiUpdated: false,
             });
           }
