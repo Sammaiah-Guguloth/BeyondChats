@@ -4,21 +4,20 @@ const { getCompetitorLinks } = require("./services/search.service");
 const { scrapeFullContent } = require("./services/scraper.service");
 const { transformContent } = require("./services/ai.service");
 
-// Your API base URL (ensure your server is running)
 const API_BASE_URL = process.env.API_BASE_URL + "/articles";
 
 /**
- * Main automation worker for Phase 2.
+ * Main automation worker for
  */
 const runAutomation = async () => {
   try {
-    console.log("Starting Phase 2: AI Content Enhancement...");
+    console.log("Starting AI Content Enhancement...");
 
-    // 1. Fetch articles from your Phase 1 API
+    // 1. Fetch articles from your
     const { data: articles } = await axios.get(API_BASE_URL);
 
     if (!articles || articles.length === 0) {
-      console.log("⚠️ No articles found in DB. Run Phase 1 seed first.");
+      console.log("⚠️ No articles found in DB. Run seed first.");
       return;
     }
 
@@ -67,14 +66,14 @@ ${referenceLinks.map((link) => `- ${link}`).join("\n")}
         });
 
         console.log(
-          `   ✅ Successfully updated and cited ${referenceLinks.length} sources.`
+          `   Successfully updated and cited ${referenceLinks.length} sources.`
         );
       } else {
         console.log("  AI transformation failed, skipping update.");
       }
     }
 
-    console.log("\n Phase 2 Complete! All articles have been enhanced.");
+    console.log("\n  Complete! All articles have been enhanced.");
   } catch (error) {
     console.error(" Critical Error in Processor:", error.message);
   }

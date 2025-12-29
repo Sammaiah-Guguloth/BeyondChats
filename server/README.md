@@ -22,6 +22,18 @@ The server is organized as follows:
 
   - `article.routes.js`: Routes for article CRUD operations.
 
+- `scripts/`: Contains automation scripts for Phase 2 AI content enhancement.
+
+  - `processor.js`: Main automation script that orchestrates the AI enhancement process for articles.
+
+  - `services/`: Modular services used by the processor.
+
+    - `search.service.js`: Uses SerpApi to find top competitor blog links for a given article title.
+
+    - `scraper.service.js`: Scrapes full content from competitor URLs for AI reference.
+
+    - `ai.service.js`: Transforms original article content using Gemini AI, incorporating competitor insights.
+
 - `utils/`: Utility functions.
 
   - `scraper.js`: Contains the `scrapeBeyondChats` function to scrape articles from https://beyondchats.com/blogs/.
@@ -30,7 +42,7 @@ The server is organized as follows:
 
 - `package.json`: Dependencies and scripts.
 
-- `.env`: Environment variables (e.g., MongoDB URI, port).
+- `.env`: Environment variables (e.g., MongoDB URI, API keys, port).
 
 ## Scraper
 
@@ -44,7 +56,51 @@ The scraper (`utils/scraper.js`) is responsible for scraping the 5 oldest articl
 
 - If fetching fails, it falls back to the excerpt from the listing page.
 
-- Returns an array of 5 articles with title, source_url, content, isAiUpdated.
+- Returns an array of 5 articles with title, sourceUrl, originalContent, isAiUpdated.
+
+## Phase 2 Automation
+
+Phase 2 involves AI-powered content enhancement using the scripts in the `scripts/` folder. The automation process enhances existing articles by researching competitors, scraping their content, and using AI to rewrite the original articles with improved quality and citations.
+
+### Running the Automation
+
+To run the Phase 2 automation:
+
+1. Ensure the server is running (Phase 1 completed with articles in DB).
+
+2. Ensure environment variables are set: `SERPAPI_KEY`, `GEMINI_API_KEY`, `API_BASE_URL`.
+
+3. Run the processor script:
+
+```bash
+node server/scripts/processor.js
+```
+
+### Automation Process
+
+The `processor.js` script performs the following steps for each article:
+
+1. **Fetch Articles**: Retrieves all articles from the database via GET /api/articles.
+
+2. **Search Competitors**: For each article title, uses `search.service.js` to find top 3 competitor blog links (excluding social media, Amazon, Pinterest, and beyondchats.com).
+
+3. **Scrape Competitor Content**: Uses `scraper.service.js` to scrape full content from competitor URLs. Filters noise elements and extracts main content.
+
+4. **AI Transformation**: Uses `ai.service.js` with Gemini AI to rewrite the original content, incorporating competitor insights for better quality.
+
+5. **Update Database**: Updates the article via PUT /api/articles/:id with enhanced content, references (all competitor links), and marks as AI-updated.
+
+### Services
+
+- **search.service.js**: Integrates with SerpApi Google Search to find relevant competitor articles.
+
+- **scraper.service.js**: Robust web scraper that handles various site structures, removes noise, and limits content to 5000 characters.
+
+- **ai.service.js**: Uses Google Gemini AI to transform content with professional formatting and SEO improvements.
+
+### Logging
+
+The scripts provide detailed console logging for monitoring progress, including search results, scraping status, AI processing, and update confirmations.
 
 ## APIs
 
@@ -71,8 +127,8 @@ Initializes the database by scraping and storing 5 oldest articles if not alread
   "articles": [
     {
       "title": "Article Title",
-      "source_url": "https://beyondchats.com/...",
-      "content": "Full article content...",
+      "sourceUrl": "https://beyondchats.com/...",
+      "originalContent": "Full article content...",
       "isAiUpdated": false
     }
   ],
@@ -217,6 +273,6 @@ Updates an article by ID.
 }
 ```
 
-Note: Assuming the base URL is /api/articles, as per standard routing.
+Note: The base URL is /api/v1/articles.
 
-This completes Phase 1 of the assignment.
+This completes Phase 1 (Data Collection) and Phase 2 (AI Content Enhancement) of the assignment.
