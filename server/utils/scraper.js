@@ -5,6 +5,8 @@ const scrapeBeyondChats = async () => {
   const BASE_URL = "https://beyondchats.com/blogs/";
 
   try {
+    // console.log("Initializing scraper: Finding the last page...");
+
     const { data: initialHtml } = await axios.get(BASE_URL, {
       headers: {
         "User-Agent":
@@ -13,7 +15,7 @@ const scrapeBeyondChats = async () => {
     });
     const $ = cheerio.load(initialHtml);
 
-    // Finding pagination to identify the last page
+    // Finding pagination
     const pageLinks = $(".page-numbers")
       .map((i, el) => $(el).text())
       .get();
@@ -22,6 +24,8 @@ const scrapeBeyondChats = async () => {
       .filter((n) => !isNaN(n));
     const lastPageNumber =
       pageNumbers.length > 0 ? Math.max(...pageNumbers) : 1;
+
+    // console.log(`Detected Last Page: ${lastPageNumber}`);
 
     const articles = [];
     let currentPage = lastPageNumber;
@@ -32,11 +36,17 @@ const scrapeBeyondChats = async () => {
       const { data: pageHtml } = await axios.get(pageUrl);
       const $page = cheerio.load(pageHtml);
 
+      // IMPROVED SELECTORS: Targeting broader post containers
       const postContainers = $page("article, .elementor-post, .post");
-      const pageArticles = [];
 
+      // console.log(
+      //   `Debug: Found ${postContainers.length} potential post containers on page ${currentPage}.`
+      // );
+
+      const pageArticles = [];
       for (let i = 0; i < postContainers.length; i++) {
         const element = postContainers[i];
+        // Find title and link (usually in an h1-h4 or a class with 'title')
         const titleElement = $page(element)
           .find("h2, h3, .elementor-post__title")
           .find("a")
@@ -44,54 +54,73 @@ const scrapeBeyondChats = async () => {
         const title = titleElement.text().trim();
         const link = titleElement.attr("href");
 
+        // Find excerpt/content
+        const excerpt = $page(element)
+          .find(".elementor-post__excerpt, .entry-content, p")
+          .first()
+          .text()
+          .trim();
+
         if (title && link) {
           try {
-            // STEP 1: Fetch the specific article page
-            const { data: articleHtml } = await axios.get(link);
+            // Fetch full content from the article page
+            const { data: articleHtml } = await axios.get(link, {
+              headers: {
+                "User-Agent":
+                  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/91.0.4472.124 Safari/537.36",
+              },
+            });
             const $article = cheerio.load(articleHtml);
-
-            /** * STEP 2: Extract Full Content based on your provided HTML snippet.
-             * We target the theme-post-content widget inside the #content container.
-             */
-            let fullContent = $article(
-              "#content .elementor-widget-theme-post-content"
-            )
-              .text()
-              .trim();
-
-            // Fallback if the above ID/Class structure varies slightly
-            if (!fullContent) {
-              fullContent = $article(".elementor-widget-theme-post-content")
-                .first()
-                .text()
-                .trim();
-            }
+            const fullContent = $article(".entry-content").text().trim();
 
             pageArticles.push({
               title,
               source_url: link,
-              content: fullContent || "Content extraction failed",
-              is_ai_updated: false,
+              content: fullContent || excerpt || "No content available",
+              isAiUpdated: false,
             });
           } catch (err) {
-            console.error(`Error fetching article at ${link}: ${err.message}`);
+            console.error(
+              `Failed to fetch full content for ${link}: ${err.message}`
+            );
+            pageArticles.push({
+              title,
+              source_url: link,
+              content: excerpt || "No content available",
+              isAiUpdated: false,
+            });
           }
         }
       }
 
-      // Logic to collect 5 oldest articles starting from the last page [cite: 9]
+      // For the last page, take all articles (oldest)
+      // For previous pages, take from the end (oldest on that page)
       if (currentPage === lastPageNumber) {
         articles.push(...pageArticles);
       } else {
         const needed = 5 - articles.length;
         articles.push(...pageArticles.slice(-needed));
       }
+
       currentPage--;
     }
 
-    return articles.slice(0, 5); // Return exactly the 5 oldest [cite: 9]
+    // The assignment asks for the 5 oldest articles
+    const oldestArticles = articles.slice(0, 5);
+
+    // console.log(`Successfully scraped ${oldestArticles.length} articles.`);
+
+    // oldestArticles.forEach((article, index) => {
+    //   console.log(`Article ${index + 1}:`, {
+    //     title: article.title,
+    //     source_url: article.source_url,
+    //     content: article.content,
+    //   });
+    // });
+    return oldestArticles;
   } catch (error) {
-    throw new Error("Scraping engine failure: " + error.message);
+    console.error("Scraping failed:", error.message);
+    throw new Error("Unable to fetch articles.");
   }
 };
 
