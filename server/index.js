@@ -4,6 +4,7 @@ const scrapeBeyondChats = require("./utils/scraper");
 const connectToDB = require("./config/connectToDB");
 const cors = require("cors");
 const articleRouter = require("./routes/article.routes");
+const { getCompetitorLinks } = require("./scripts/services/search.service");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -27,6 +28,8 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/v1/articles", articleRouter);
+
+// getCompetitorLinks(" hello "); // for check
 
 // scrapeBeyondChats(); for check
 
