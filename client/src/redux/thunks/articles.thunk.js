@@ -1,0 +1,34 @@
+import { createAsyncThunk } from "@reduxjs/toolkit";
+import axiosInstance from "../../api/axiosInstance";
+import { GET_ALL_ARTICLES } from "../../api/apis";
+
+export const fetchAllArticlesThunk = createAsyncThunk(
+  "articles/fetchArticles",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.get(GET_ALL_ARTICLES);
+      console.log("response : ", response);
+      return response.data?.articles;
+    } catch (err) {
+      console.log("Error while fetching articles in thunk , error : ", err);
+      return rejectWithValue(
+        err.response?.data?.error || "Failed to fetch articles"
+      );
+    }
+  }
+);
+
+export const fetchArticleByIdThunk = createAsyncThunk(
+  "articles/fetchById",
+  async (id, { rejectWithValue }) => {
+    try {
+      // Ensure the endpoint matches your Backend (e.g., /api/articles/:id)
+      const response = await axiosInstance.get(`/articles/${id}`);
+      return response.data; // Should return the single article object
+    } catch (err) {
+      return rejectWithValue(
+        err.response?.data?.error || "Failed to fetch article details"
+      );
+    }
+  }
+);

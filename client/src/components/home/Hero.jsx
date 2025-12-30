@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 
 const Hero = () => {
   return (
-    <section className="relative flex flex-col items-center pb-6 justify-center min-h-screen px-4 pt-20 overflow-hidden bg-black text-white">
+    <section className="relative flex flex-col items-center pb-6 justify-center min-h-screen px-4 pt-20 overflow-hidden ">
       {/* Ambient Background Glow (Opal Reference) */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#2EFFA9]/10 blur-[140px] rounded-full" />
 

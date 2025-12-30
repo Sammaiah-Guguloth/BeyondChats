@@ -6,7 +6,7 @@ import Article from "./pages/Article";
 
 const App = () => {
   return (
-    <div className="">
+    <div className="text-white">
       <Routes>
         <Route path="/" element={<Home />} />
 
