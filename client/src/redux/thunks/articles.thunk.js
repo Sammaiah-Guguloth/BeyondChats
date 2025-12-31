@@ -1,6 +1,6 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "../../api/axiosInstance";
-import { GET_ALL_ARTICLES } from "../../api/apis";
+import { GET_ALL_ARTICLES, GET_ARTICLE_BY_ID } from "../../api/apis";
 
 export const fetchAllArticlesThunk = createAsyncThunk(
   "articles/fetchArticles",
@@ -22,8 +22,7 @@ export const fetchArticleByIdThunk = createAsyncThunk(
   "articles/fetchById",
   async (id, { rejectWithValue }) => {
     try {
-      // Ensure the endpoint matches your Backend (e.g., /api/articles/:id)
-      const response = await axiosInstance.get(`/articles/${id}`);
+      const response = await axiosInstance.get(GET_ARTICLE_BY_ID);
       return response.data; // Should return the single article object
     } catch (err) {
       return rejectWithValue(
