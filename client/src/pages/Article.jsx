@@ -18,6 +18,8 @@ const Article = () => {
     }
   }, [id, dispatch]);
 
+  // console.log("current article : ", currentArticle);
+
   return (
     <div className="min-h-screen bg-black text-white">
       <Navbar />

@@ -22,8 +22,10 @@ export const fetchArticleByIdThunk = createAsyncThunk(
   "articles/fetchById",
   async (id, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.get(GET_ARTICLE_BY_ID);
-      return response.data; // Should return the single article object
+      const response = await axiosInstance.get(`${GET_ARTICLE_BY_ID}/${id}`);
+      // console.log("response for current article : ", response);
+
+      return response.data;
     } catch (err) {
       return rejectWithValue(
         err.response?.data?.error || "Failed to fetch article details"

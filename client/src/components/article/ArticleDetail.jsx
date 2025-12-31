@@ -4,14 +4,16 @@ import { motion } from "framer-motion";
 
 const ArticleDetail = ({ article: articleProp }) => {
   // Handle the "article.article" nesting often seen in Redux responses
+
+  // console.log("article : ", articleProp);
   const article = articleProp?.article || articleProp;
 
-  if (!article)
-    return (
-      <div className="text-[#2EFFA9] font-mono p-20 text-center">
-        INITIALIZING_DATA_STREAM...
-      </div>
-    );
+  // if (!article)
+  //   return (
+  //     <div className="text-[#2EFFA9] font-mono p-20 text-center">
+  //       INITIALIZING_DATA_STREAM...
+  //     </div>
+  //   );
 
   /**
    * Semantically renders the structured array from Phase 1
