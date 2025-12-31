@@ -3,7 +3,7 @@ const scrapeBeyondChats = require("../utils/scraper");
 
 exports.initializeDatabase = async (req, res) => {
   try {
-    // 1. Validate if seeding is necessary
+    // 1. Validating if seeding is necessary
     const count = await articleModel.countDocuments();
 
     if (count >= 5) {
@@ -12,7 +12,7 @@ exports.initializeDatabase = async (req, res) => {
       });
     }
 
-    // 2. Execute structured scraper
+    // 2. Executing structured scraper
     const data = await scrapeBeyondChats();
 
     if (!data || data.length < 5) {
@@ -23,16 +23,15 @@ exports.initializeDatabase = async (req, res) => {
       });
     }
 
-    // 3. Store structured data in DB
+    // 3. Storing structured data in DB
     const savedArticles = [];
     for (let article of data) {
-      // Use findOneAndUpdate with upsert for production-grade reliability
       const articleDoc = await articleModel.findOneAndUpdate(
-        { sourceUrl: article.sourceUrl }, // Match criteria
+        { sourceUrl: article.sourceUrl },
         {
           title: article.title,
           sourceUrl: article.sourceUrl,
-          originalContent: article.originalContent, // Now saving the array of objects
+          originalContent: article.originalContent,
           isAiUpdated: false,
         },
         { upsert: true, new: true, setDefaultsOnInsert: true }
@@ -54,7 +53,7 @@ exports.initializeDatabase = async (req, res) => {
 
 exports.getAllArticles = async (req, res) => {
   try {
-    // Sort by oldest first as per assignment requirement for Phase 1
+    // Sort by oldest first
     const articles = await articleModel.find().sort({ createdAt: 1 });
     res.status(200).json({ articles });
   } catch (err) {
@@ -82,11 +81,9 @@ exports.getArticleById = async (req, res) => {
 exports.updateArticleById = async (req, res) => {
   try {
     const { id } = req.params;
-
-    // Using findByIdAndUpdate ensures we only update fields sent by the AI script in Phase 2
     const updatedArticle = await articleModel.findByIdAndUpdate(
       id,
-      { $set: req.body }, // Dynamically updates fields like updatedContent and references
+      { $set: req.body },
       { new: true, runValidators: true }
     );
 

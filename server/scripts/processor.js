@@ -10,7 +10,7 @@ const API_BASE_URL =
 
 const runAutomation = async () => {
   try {
-    console.log("🚀 STARTING PHASE 2: AI CONTENT ORCHESTRATION");
+    console.log("STARTING PHASE 2: AI CONTENT ORCHESTRATION");
 
     // 1. Fetch articles from Phase 1 CRUD API [cite: 15]
     const { data } = await axios.get(API_BASE_URL);
@@ -24,11 +24,11 @@ const runAutomation = async () => {
     for (const article of articles) {
       // Skip if already processed to save API credits
       if (article.isAiUpdated) {
-        console.log(`⏩ Skipping "${article.title}" (Already Enhanced)`);
+        console.log(`Skipping "${article.title}" (Already Enhanced)`);
         continue;
       }
 
-      console.log(`\n🔍 RESEARCHING: "${article.title}"`);
+      console.log(`\n RESEARCHING: "${article.title}"`);
 
       // Step 2: Search for Top 2 Competitors on Google [cite: 17, 18]
       const competitorLinks = await getCompetitorLinks(article.title);
@@ -38,7 +38,7 @@ const runAutomation = async () => {
       const referenceLinks = [];
 
       for (const item of competitorLinks) {
-        console.log(`   📡 Scraping Competitor: ${item.link}`);
+        console.log(`Scraping Competitor: ${item.link}`);
         const content = await scrapeFullContent(item.link);
 
         referenceLinks.push(item.link);
@@ -46,7 +46,7 @@ const runAutomation = async () => {
       }
 
       // Step 4: AI Transformation via Gemini
-      console.log("   🤖 Synthesizing AI-Optimized Version...");
+      console.log("Synthesizing AI-Optimized Version...");
       const aiGeneratedBody = await transformContent(
         article.originalContent,
         competitorData
@@ -62,7 +62,7 @@ ${aiGeneratedBody}
 ${referenceLinks.map((link) => `- [View Source](${link})`).join("\n")}
                 `.trim();
 
-        // Step 6: Publish via Phase 1 PUT API [cite: 21]
+        // Step 6: Publish PUT API [cite: 21]
         await axios.put(`${API_BASE_URL}/${article._id}`, {
           updatedContent: finalContent,
           references: referenceLinks,
@@ -73,13 +73,13 @@ ${referenceLinks.map((link) => `- [View Source](${link})`).join("\n")}
           `   ✅ SUCCESS: Article updated with ${referenceLinks.length} references.`
         );
       } else {
-        console.log("   ❌ FAILED: AI generation error.");
+        console.log("FAILED: AI generation error.");
       }
     }
 
-    console.log("\n✨ PHASE 2 COMPLETE: All articles processed successfully.");
+    console.log("\n PHASE 2 COMPLETE: All articles processed successfully.");
   } catch (error) {
-    console.error("❌ CRITICAL PROCESSOR ERROR:", error.message);
+    console.error("CRITICAL PROCESSOR ERROR:", error.message);
   }
 };
 

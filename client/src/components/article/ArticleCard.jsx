@@ -33,7 +33,7 @@ const ArticleCard = ({ article }) => {
         <div className="flex justify-end mb-4">
           <span className="flex items-center gap-1.5 px-3 py-1 bg-[#2EFFA9]/5 border border-[#2EFFA9]/20 text-[#2EFFA9] text-[9px] font-mono uppercase tracking-widest rounded-full">
             <span className="w-1 h-1 rounded-full bg-[#2EFFA9] animate-pulse" />
-            AI_REFINED
+            ___
           </span>
         </div>
       )}
@@ -53,7 +53,7 @@ const ArticleCard = ({ article }) => {
           to={`/article/${article._id}`}
           className="flex items-center justify-between w-full px-6 py-3 bg-white/5 border border-white/10 text-white text-xs font-mono uppercase tracking-[0.2em] rounded-xl group-hover:bg-[#2EFFA9] group-hover:text-black group-hover:border-transparent transition-all duration-300"
         >
-          Explore_Data
+          Full Article
           <span className="text-lg group-hover:translate-x-1 transition-transform">
             →
           </span>

@@ -1,12 +1,15 @@
 {
-  "name": "beyondchats_assignment",
+  "name": "beyondchats-assignment",
   "version": "1.0.0",
+  "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "concurrently \"npm run dev --prefix client\" \"npm start --prefix server\""
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": ""
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
 }

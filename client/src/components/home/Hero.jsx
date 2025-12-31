@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 const Hero = () => {
   return (
     <section className="relative flex flex-col items-center pb-6 justify-center min-h-screen px-4 pt-20 overflow-hidden ">
-      {/* Ambient Background Glow (Opal Reference) */}
+      {/* Ambient Background Glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#2EFFA9]/10 blur-[140px] rounded-full" />
 
       <motion.div
@@ -21,16 +21,16 @@ const Hero = () => {
 
         {/* Main Heading */}
         <h2 className="text-6xl md:text-8xl font-bold tracking-tight leading-[1.1]">
-          Evolving Content <br />
+          Assignment <br />
           <span className="bg-gradient-to-r from-[#2EFFA9] via-[#3BD9FF] to-[#2EFFA9] bg-clip-text text-transparent">
-            with BeyondChats
+            {"     "} ______ BeyondChats
           </span>
         </h2>
 
         {/* Project Info Section */}
         <div className="mt-10 max-w-2xl mx-auto">
           <p className="text-lg md:text-xl text-gray-400 font-light leading-relaxed">
-            Integrating automated web scraping, Google Search analysis, and
+            Integrating automated web scraping, Google Search, Scraping, and
             LLM-powered content optimization to redefine the blog experience.
           </p>
         </div>

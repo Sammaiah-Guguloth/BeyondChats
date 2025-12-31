@@ -11,7 +11,6 @@ const articleSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
-    // Changed to an array of objects to support semantic structure
     originalContent: [
       {
         type: {

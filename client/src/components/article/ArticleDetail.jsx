@@ -19,9 +19,7 @@ const ArticleDetail = ({ article: articleProp }) => {
   const renderOriginalBlocks = (blocks) => {
     if (!blocks || !Array.isArray(blocks)) {
       return (
-        <p className="text-gray-500 italic text-sm">
-          No structured data found.
-        </p>
+        <p className="text-gray-500 italic text-sm">Error NO data found.</p>
       );
     }
 
@@ -66,7 +64,7 @@ const ArticleDetail = ({ article: articleProp }) => {
           </a>
           <span className="text-gray-700 font-mono text-xs">|</span>
           <span className="text-[10px] font-mono uppercase tracking-widest text-gray-500">
-            Entry_Stamp: {new Date(article.createdAt).toLocaleDateString()}
+            Created At: {new Date(article.createdAt).toLocaleDateString()}
           </span>
         </div>
       </motion.section>
@@ -78,7 +76,7 @@ const ArticleDetail = ({ article: articleProp }) => {
           <div className="flex items-center gap-2 mb-10">
             <div className="w-1.5 h-1.5 rounded-full bg-gray-600 animate-pulse" />
             <h3 className="text-[10px] font-mono uppercase tracking-[0.3em] text-gray-500">
-              Legacy_Source_Scrape
+              Original Article from BeyondChats
             </h3>
           </div>
           <div className="max-w-none">
@@ -96,7 +94,7 @@ const ArticleDetail = ({ article: articleProp }) => {
           <div className="flex items-center gap-2 mb-10">
             <div className="w-1.5 h-1.5 rounded-full bg-[#2EFFA9] shadow-[0_0_10px_#2EFFA9]" />
             <h3 className="text-[10px] font-mono uppercase tracking-[0.3em] text-[#2EFFA9]">
-              Refined_By_Gemini_1.5
+              Optimized by LLM
             </h3>
           </div>
 
@@ -125,7 +123,7 @@ const ArticleDetail = ({ article: articleProp }) => {
         >
           <div className="absolute top-0 right-0 w-64 h-64 bg-[#2EFFA9]/5 blur-[80px] -mr-32 -mt-32" />
           <h4 className="text-[#2EFFA9] font-mono text-[10px] mb-8 uppercase tracking-[0.4em]">
-            Google_Search_Intelligence_Logs
+            Top 2 compititors links from which data is scraped and optimized
           </h4>
           <ul className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4">
             {article.references.map((ref, i) => (

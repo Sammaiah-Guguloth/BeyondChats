@@ -55,8 +55,6 @@ const scrapeBeyondChats = async () => {
             const $article = cheerio.load(articleHtml);
             const structuredContent = [];
 
-            // --- ROBUST SELECTOR STRATEGY ---
-            // We check multiple common containers used by BeyondChats/Elementor
             const selectors = [
               ".elementor-widget-theme-post-content",
               ".entry-content",
@@ -67,7 +65,7 @@ const scrapeBeyondChats = async () => {
             let contentContainer = null;
             for (const selector of selectors) {
               if ($article(selector).length > 0) {
-                // We pick the one that has actual paragraph children
+                // pick the one that has actual paragraph children
                 if ($article(selector).find("p").length > 0) {
                   contentContainer = $article(selector);
                   break;
@@ -98,7 +96,6 @@ const scrapeBeyondChats = async () => {
                 });
             }
 
-            // --- FINAL FALLBACK ---
             // If the array is still empty (container not found), grab all P tags
             if (structuredContent.length === 0) {
               $article("p").each((_, el) => {
@@ -117,10 +114,10 @@ const scrapeBeyondChats = async () => {
             });
 
             console.log(
-              `✅ Scraped: ${title} (${structuredContent.length} blocks)`
+              `Scraped: ${title} (${structuredContent.length} blocks)`
             );
           } catch (err) {
-            console.error(`❌ Failed sub-page ${link}: ${err.message}`);
+            console.error(`Failed sub-page ${link}: ${err.message}`);
           }
         }
       }
@@ -136,7 +133,7 @@ const scrapeBeyondChats = async () => {
     }
 
     const finalSelection = articles.slice(0, 5);
-    console.log(`✨ Total Scraped for DB: ${finalSelection.length}`);
+    console.log(`Total Scraped for DB: ${finalSelection.length}`);
     return finalSelection;
   } catch (error) {
     console.error("Scraping Engine Failure:", error.message);

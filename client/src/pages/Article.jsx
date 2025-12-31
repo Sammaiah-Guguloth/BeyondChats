@@ -29,14 +29,14 @@ const Article = () => {
             to="/articles"
             className="inline-flex items-center gap-2 mb-10 px-4 py-2 text-xs font-mono uppercase tracking-widest text-gray-400 border border-white/10 rounded-full hover:border-[#2EFFA9] hover:text-[#2EFFA9] transition-all"
           >
-            <span>←</span> Back to Insights
+            <span>←</span> Back to Articles
           </Link>
 
           {loading ? (
             <div className="flex flex-col items-center justify-center h-64">
               <div className="w-12 h-12 border-t-2 border-[#2EFFA9] rounded-full animate-spin mb-4"></div>
               <p className="text-gray-500 font-mono text-xs uppercase animate-pulse">
-                Synchronizing Data...
+                Fetching Data...
               </p>
             </div>
           ) : error ? (

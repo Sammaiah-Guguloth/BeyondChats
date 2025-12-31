@@ -39,7 +39,7 @@ const transformContent = async (originalContent, competitorData) => {
     const response = await result.response;
     return response.text();
   } catch (error) {
-    console.log("❌ AI Service Error:", error.message);
+    console.log("AI Service Error:", error.message);
     return null;
   }
 };

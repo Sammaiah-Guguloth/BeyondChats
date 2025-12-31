@@ -13,7 +13,7 @@ const getCompetitorLinks = async (title) => {
       gl: "us",
     };
 
-    console.log("came in function ");
+    // console.log("came in function ");
 
     search.json(params, (data) => {
       if (data.error) {
