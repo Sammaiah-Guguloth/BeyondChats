@@ -12,10 +12,28 @@ const PORT = process.env.PORT || 5000;
 // Connect to Database
 connectToDB();
 
-// Middlewares
+// app.use(
+//   cors({
+//     origin: process.env.CLIENT_URL,
+//   })
+// );
+
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://localhost:3000",
+  "https://beyondchats2.netlify.app",
+];
+
 app.use(
   cors({
-    origin: process.env.CLIENT_URL,
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("CORS blocked"));
+      }
+    },
+    credentials: true,
   })
 );
 
