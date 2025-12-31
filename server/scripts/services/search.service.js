@@ -41,7 +41,7 @@ const getCompetitorLinks = async (title) => {
           link: res.link,
         }));
 
-      console.log(`\n🔍 SEARCH RESULTS FOR: "${title}"`);
+      console.log(`\n SEARCH RESULTS FOR: "${title}"`);
       filteredLinks.forEach((item, i) => {
         console.log(`   Link ${i + 1}: ${item.link}`);
       });

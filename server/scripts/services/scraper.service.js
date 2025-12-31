@@ -38,9 +38,7 @@ const scrapeFullContent = async (url) => {
     // 4. Clean up whitespace
     const cleanedContent = mainContent.replace(/\s+/g, " ").substring(0, 5000); // Limit to 5k chars
 
-    console.log(
-      `   📄 Scraped ${cleanedContent.length} characters from: ${url}`
-    );
+    console.log(`   Scraped ${cleanedContent.length} characters from: ${url}`);
     return cleanedContent;
   } catch (error) {
     console.error(`   ⚠️ Scraper Warning: Could not read ${url}. Skipping.`);

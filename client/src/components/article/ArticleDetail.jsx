@@ -24,7 +24,6 @@ const ArticleDetail = ({ article }) => {
           </span>
         </div>
       </section>
-
       {/* Comparison Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-px bg-white/10 border border-white/10 rounded-3xl overflow-hidden">
         {/* ORIGINAL COLUMN */}
@@ -60,7 +59,6 @@ const ArticleDetail = ({ article }) => {
           </div>
         </div>
       </div>
-
       {/* References Section */}
       {article.references?.length > 0 && (
         <div className="p-8 bg-white/5 border border-white/10 rounded-3xl">

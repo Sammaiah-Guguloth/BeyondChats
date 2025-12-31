@@ -51,6 +51,7 @@ exports.initializeDatabase = async (req, res) => {
 };
 
 exports.getAllArticles = async (req, res) => {
+  console.log("came from react ");
   try {
     const articles = await articleModel.find();
     res.status(200).json({ articles });

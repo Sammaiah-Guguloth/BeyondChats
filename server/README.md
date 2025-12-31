@@ -274,5 +274,3 @@ Updates an article by ID.
 ```
 
 Note: The base URL is /api/v1/articles.
-
-This completes Phase 1 (Data Collection) and Phase 2 (AI Content Enhancement) of the assignment.

@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { fetchArticleByIdThunk } from "../redux/thunks/articles.thunk"; // Updated import
+import { fetchArticleByIdThunk } from "../redux/thunks/articles.thunk";
 import Navbar from "../components/global/Navbar";
 import ArticleDetail from "../components/article/ArticleDetail";
 
