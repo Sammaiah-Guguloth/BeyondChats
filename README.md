@@ -1,5 +1,11 @@
 # BeyondChats - Full Stack Assignment
 
+## 🌐 Live
+
+- **Frontend (Netlify):** [https://beyondchats-server.onrender.com/](https://beyondchats-server.onrender.com/)
+- **Backend (Render):** [https://beyondchats-server.onrender.com/](https://beyondchats-server.onrender.com/)
+- **GitHub Repository:** [https://github.com/Sammaiah-Guguloth/BeyondChats](https://github.com/Sammaiah-Guguloth/BeyondChats)
+
 A comprehensive full-stack application featuring automated web scraping, AI-powered content enhancement, and a modern React frontend with side-by-side content comparison.
 
 ## 🚀 Project Overview
