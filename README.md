@@ -2,7 +2,7 @@
 
 ## 🌐 Live
 
-- **Frontend (Netlify):** [https://beyondchats-server.onrender.com/](https://beyondchats-server.onrender.com/)
+- **Frontend (Netlify):** [https://beyondchats2.netlify.app/](https://beyondchats2.netlify.app/)
 - **Backend (Render):** [https://beyondchats-server.onrender.com/](https://beyondchats-server.onrender.com/)
 - **GitHub Repository:** [https://github.com/Sammaiah-Guguloth/BeyondChats](https://github.com/Sammaiah-Guguloth/BeyondChats)
 
