@@ -3,57 +3,59 @@ const scrapeBeyondChats = require("../utils/scraper");
 
 exports.initializeDatabase = async (req, res) => {
   try {
-    // validating
+    // 1. Validate if seeding is necessary
     const count = await articleModel.countDocuments();
 
     if (count >= 5) {
-      return res
-        .status(200)
-        .json({ message: "Database already has articles." });
+      return res.status(200).json({
+        message: "Database already initialized with required articles.",
+      });
     }
 
-    // scrape the articles
+    // 2. Execute structured scraper
     const data = await scrapeBeyondChats();
 
-    if (data.length < 5) {
+    if (!data || data.length < 5) {
       return res.status(500).json({
-        message: "Less than 5 articles scraped, not stored",
+        message: `Scraping failed: Expected 5 articles, found ${
+          data?.length || 0
+        }`,
       });
     }
 
-    // Store in the db
+    // 3. Store structured data in DB
+    const savedArticles = [];
     for (let article of data) {
-      const existingArticle = await articleModel.findOne({
-        sourceUrl: article.source_url,
-      });
-
-      if (!existingArticle) {
-        const savedArticle = new articleModel({
+      // Use findOneAndUpdate with upsert for production-grade reliability
+      const articleDoc = await articleModel.findOneAndUpdate(
+        { sourceUrl: article.sourceUrl }, // Match criteria
+        {
           title: article.title,
-          sourceUrl: article.source_url,
-          originalContent: article.content,
-        });
-
-        await savedArticle.save();
-      }
+          sourceUrl: article.sourceUrl,
+          originalContent: article.originalContent, // Now saving the array of objects
+          isAiUpdated: false,
+        },
+        { upsert: true, new: true, setDefaultsOnInsert: true }
+      );
+      savedArticles.push(articleDoc);
     }
 
     res.status(201).json({
-      articles: data,
-      message: "5 oldest articles stored.",
+      message:
+        "Phase 1 Complete: 5 oldest articles stored with semantic structure.",
+      count: savedArticles.length,
+      articles: savedArticles,
     });
   } catch (err) {
-    console.log("Error while initializing the DB: ", err.message);
-    res.status(500).json({
-      error: err.message,
-    });
+    console.error("Critical Error during DB initialization: ", err.message);
+    res.status(500).json({ error: err.message });
   }
 };
 
 exports.getAllArticles = async (req, res) => {
-  console.log("came from react ");
   try {
-    const articles = await articleModel.find();
+    // Sort by oldest first as per assignment requirement for Phase 1
+    const articles = await articleModel.find().sort({ createdAt: 1 });
     res.status(200).json({ articles });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -64,9 +66,13 @@ exports.getArticleById = async (req, res) => {
   try {
     const { id } = req.params;
     const article = await articleModel.findById(id);
+
     if (!article) {
-      return res.status(404).json({ message: "Article not found" });
+      return res
+        .status(404)
+        .json({ message: "Article system error: ID not found" });
     }
+
     res.status(200).json({ article });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -76,30 +82,24 @@ exports.getArticleById = async (req, res) => {
 exports.updateArticleById = async (req, res) => {
   try {
     const { id } = req.params;
-    const {
-      title,
-      sourceUrl,
-      originalContent,
-      updatedContent,
-      references,
-      isAiUpdated,
-    } = req.body;
+
+    // Using findByIdAndUpdate ensures we only update fields sent by the AI script in Phase 2
     const updatedArticle = await articleModel.findByIdAndUpdate(
       id,
-      {
-        title,
-        sourceUrl,
-        originalContent,
-        updatedContent,
-        references,
-        isAiUpdated,
-      },
-      { new: true }
+      { $set: req.body }, // Dynamically updates fields like updatedContent and references
+      { new: true, runValidators: true }
     );
+
     if (!updatedArticle) {
-      return res.status(404).json({ message: "Article not found" });
+      return res
+        .status(404)
+        .json({ message: "Update failed: Article ID missing" });
     }
-    res.status(200).json({ article: updatedArticle });
+
+    res.status(200).json({
+      message: "Article successfully synchronized with AI enhancements",
+      article: updatedArticle,
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

@@ -11,10 +11,24 @@ const articleSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
-    originalContent: {
-      type: String,
-      required: true,
-    },
+    // Changed to an array of objects to support semantic structure
+    originalContent: [
+      {
+        type: {
+          type: String,
+          required: true,
+          enum: ["heading", "paragraph", "list-item"],
+        },
+        tag: {
+          type: String,
+          required: true,
+        },
+        text: {
+          type: String,
+          required: true,
+        },
+      },
+    ],
     updatedContent: {
       type: String,
       default: null,

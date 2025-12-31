@@ -4,61 +4,65 @@ const { getCompetitorLinks } = require("./services/search.service");
 const { scrapeFullContent } = require("./services/scraper.service");
 const { transformContent } = require("./services/ai.service");
 
-const API_BASE_URL = process.env.API_BASE_URL + "/articles";
+// Use local base URL
+const API_BASE_URL =
+  (process.env.API_BASE_URL || "http://localhost:5000/api") + "/articles";
 
-/**
- * Main automation worker for
- */
 const runAutomation = async () => {
   try {
-    console.log("Starting AI Content Enhancement...");
+    console.log("🚀 STARTING PHASE 2: AI CONTENT ORCHESTRATION");
 
-    // 1. Fetch articles from your
-    const { data: articles } = await axios.get(API_BASE_URL);
+    // 1. Fetch articles from Phase 1 CRUD API [cite: 15]
+    const { data } = await axios.get(API_BASE_URL);
+    const articles = data.articles || [];
 
-    if (!articles || articles.length === 0) {
-      console.log("⚠️ No articles found in DB. Run seed first.");
+    if (articles.length === 0) {
+      console.log("⚠️ No articles found. Ensure Phase 1 seeding is complete.");
       return;
     }
 
-    // console.log("articles : ", articles.articles);
-    for (const article of articles.articles) {
-      console.log(`\n Processing: "${article.title}"`);
+    for (const article of articles) {
+      // Skip if already processed to save API credits
+      if (article.isAiUpdated) {
+        console.log(`⏩ Skipping "${article.title}" (Already Enhanced)`);
+        continue;
+      }
 
-      // Step 2: Search for Top 2 Competitors
+      console.log(`\n🔍 RESEARCHING: "${article.title}"`);
+
+      // Step 2: Search for Top 2 Competitors on Google [cite: 17, 18]
       const competitorLinks = await getCompetitorLinks(article.title);
 
-      // Step 3: Scrape Content from those links
+      // Step 3: Scrape Content from external links [cite: 19]
       const competitorData = [];
       const referenceLinks = [];
 
       for (const item of competitorLinks) {
+        console.log(`   📡 Scraping Competitor: ${item.link}`);
         const content = await scrapeFullContent(item.link);
-        referenceLinks.push(item.link); // Always include the link in references
-        if (content) {
-          competitorData.push(content);
-        }
+
+        referenceLinks.push(item.link);
+        if (content) competitorData.push(content);
       }
 
       // Step 4: AI Transformation via Gemini
-      console.log("   Calling Gemini AI for transformation...");
+      console.log("   🤖 Synthesizing AI-Optimized Version...");
       const aiGeneratedBody = await transformContent(
         article.originalContent,
         competitorData
       );
 
       if (aiGeneratedBody) {
-        console.log("    AI transformation successful.");
-        // Step 5: Append Citations (Assignment Requirement)
+        // Step 5: Format and Append Citations
         const finalContent = `
 ${aiGeneratedBody}
 
 ---
-### References & Further Reading:
-${referenceLinks.map((link) => `- ${link}`).join("\n")}
+### References & Sources:
+${referenceLinks.map((link) => `- [View Source](${link})`).join("\n")}
                 `.trim();
 
-        // Step 6: Publish via your PUT API
+        // Step 6: Publish via Phase 1 PUT API [cite: 21]
         await axios.put(`${API_BASE_URL}/${article._id}`, {
           updatedContent: finalContent,
           references: referenceLinks,
@@ -66,18 +70,17 @@ ${referenceLinks.map((link) => `- ${link}`).join("\n")}
         });
 
         console.log(
-          `   Successfully updated and cited ${referenceLinks.length} sources.`
+          `   ✅ SUCCESS: Article updated with ${referenceLinks.length} references.`
         );
       } else {
-        console.log("  AI transformation failed, skipping update.");
+        console.log("   ❌ FAILED: AI generation error.");
       }
     }
 
-    console.log("\n  Complete! All articles have been enhanced.");
+    console.log("\n✨ PHASE 2 COMPLETE: All articles processed successfully.");
   } catch (error) {
-    console.error(" Critical Error in Processor:", error.message);
+    console.error("❌ CRITICAL PROCESSOR ERROR:", error.message);
   }
 };
 
-// Execute the worker
 runAutomation();

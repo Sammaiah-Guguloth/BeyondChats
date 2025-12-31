@@ -1,21 +1,23 @@
 const axios = require("axios");
 const cheerio = require("cheerio");
 
+/**
+ * Scrapes the 5 oldest articles with structural hierarchy.
+ * Optimized for BeyondChats (Elementor/WordPress) structure.
+ */
 const scrapeBeyondChats = async () => {
   const BASE_URL = "https://beyondchats.com/blogs/";
 
   try {
-    // console.log("Initializing scraper: Finding the last page...");
-
     const { data: initialHtml } = await axios.get(BASE_URL, {
       headers: {
         "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/91.0.4472.124 Safari/537.36",
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0 Safari/537.36",
       },
     });
     const $ = cheerio.load(initialHtml);
 
-    // Finding pagination
+    // 1. Detect Pagination
     const pageLinks = $(".page-numbers")
       .map((i, el) => $(el).text())
       .get();
@@ -25,28 +27,21 @@ const scrapeBeyondChats = async () => {
     const lastPageNumber =
       pageNumbers.length > 0 ? Math.max(...pageNumbers) : 1;
 
-    // console.log(`Detected Last Page: ${lastPageNumber}`);
-
     const articles = [];
     let currentPage = lastPageNumber;
 
+    // 2. Loop through pages (starting from the last/oldest)
     while (articles.length < 5 && currentPage >= 1) {
       const pageUrl =
         currentPage === 1 ? BASE_URL : `${BASE_URL}page/${currentPage}/`;
       const { data: pageHtml } = await axios.get(pageUrl);
       const $page = cheerio.load(pageHtml);
 
-      // IMPROVED SELECTORS: Targeting broader post containers
       const postContainers = $page("article, .elementor-post, .post");
-
-      // console.log(
-      //   `Debug: Found ${postContainers.length} potential post containers on page ${currentPage}.`
-      // );
-
       const pageArticles = [];
+
       for (let i = 0; i < postContainers.length; i++) {
         const element = postContainers[i];
-        // Find title and link (usually in an h1-h4 or a class with 'title')
         const titleElement = $page(element)
           .find("h2, h3, .elementor-post__title")
           .find("a")
@@ -54,72 +49,97 @@ const scrapeBeyondChats = async () => {
         const title = titleElement.text().trim();
         const link = titleElement.attr("href");
 
-        // Find excerpt/content
-        const excerpt = $page(element)
-          .find(".elementor-post__excerpt, .entry-content, p")
-          .first()
-          .text()
-          .trim();
-
         if (title && link) {
           try {
-            // Fetch full content from the article page
-            const { data: articleHtml } = await axios.get(link, {
-              headers: {
-                "User-Agent":
-                  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/91.0.4472.124 Safari/537.36",
-              },
-            });
+            const { data: articleHtml } = await axios.get(link);
             const $article = cheerio.load(articleHtml);
-            const fullContent = $article(".entry-content").text().trim();
+            const structuredContent = [];
+
+            // --- ROBUST SELECTOR STRATEGY ---
+            // We check multiple common containers used by BeyondChats/Elementor
+            const selectors = [
+              ".elementor-widget-theme-post-content",
+              ".entry-content",
+              ".elementor-widget-container",
+              "article",
+            ];
+
+            let contentContainer = null;
+            for (const selector of selectors) {
+              if ($article(selector).length > 0) {
+                // We pick the one that has actual paragraph children
+                if ($article(selector).find("p").length > 0) {
+                  contentContainer = $article(selector);
+                  break;
+                }
+              }
+            }
+
+            if (contentContainer) {
+              // Extract headings, paragraphs, and list items in exact order
+              contentContainer
+                .find("h1, h2, h3, h4, h5, h6, p, li")
+                .each((_, el) => {
+                  const tag = el.name;
+                  const text = $article(el).text().trim();
+
+                  // Clean data: Ignore very short strings or navigation artifacts
+                  if (text && text.length > 5) {
+                    structuredContent.push({
+                      type: tag.startsWith("h")
+                        ? "heading"
+                        : tag === "li"
+                        ? "list-item"
+                        : "paragraph",
+                      tag: tag,
+                      text: text,
+                    });
+                  }
+                });
+            }
+
+            // --- FINAL FALLBACK ---
+            // If the array is still empty (container not found), grab all P tags
+            if (structuredContent.length === 0) {
+              $article("p").each((_, el) => {
+                const text = $article(el).text().trim();
+                if (text.length > 20) {
+                  structuredContent.push({ type: "paragraph", tag: "p", text });
+                }
+              });
+            }
 
             pageArticles.push({
               title,
               sourceUrl: link,
-              originalContent: fullContent || excerpt || "No content available",
+              originalContent: structuredContent,
               isAiUpdated: false,
             });
-          } catch (err) {
-            console.error(
-              `Failed to fetch full content for ${link}: ${err.message}`
+
+            console.log(
+              `✅ Scraped: ${title} (${structuredContent.length} blocks)`
             );
-            pageArticles.push({
-              title,
-              sourceUrl: link,
-              originalContent: excerpt || "No content available",
-              isAiUpdated: false,
-            });
+          } catch (err) {
+            console.error(`❌ Failed sub-page ${link}: ${err.message}`);
           }
         }
       }
 
-      // For the last page, take all articles (oldest)
-      // For previous pages, take from the end (oldest on that page)
+      // Handle older-first logic
       if (currentPage === lastPageNumber) {
         articles.push(...pageArticles);
       } else {
         const needed = 5 - articles.length;
         articles.push(...pageArticles.slice(-needed));
       }
-
       currentPage--;
     }
 
-    // The assignment asks for the 5 oldest articles
-    const oldestArticles = articles.slice(0, 5);
-
-    // console.log(`Successfully scraped ${oldestArticles.length} articles.`);
-
-    // oldestArticles.forEach((article, index) => {
-    //   console.log(`Article ${index + 1}:`, {
-    //     title: article.title,
-    //     source_url: article.source_url,
-    //     content: article.content,
-    //   });
-    // });
-    return oldestArticles;
+    const finalSelection = articles.slice(0, 5);
+    console.log(`✨ Total Scraped for DB: ${finalSelection.length}`);
+    return finalSelection;
   } catch (error) {
-    console.error("Scraping failed:", error.message);
+    console.error("Scraping Engine Failure:", error.message);
     throw new Error("Unable to fetch articles.");
   }
 };
